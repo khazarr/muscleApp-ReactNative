@@ -6,50 +6,30 @@ import {
   View,
   Button
 } from 'react-native';
+import moment from 'moment'
+const DATA = {
+  currentTime: 1234567,
+}
 
 export default class App extends React.Component {
   render() {
     return (
       <View style={{flex: 1}}>
-        < View style = {
-          {
-            flex: 1,
-            backgroundColor: '#002642',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }
-        } >
-          <Text style={{
-            fontSize: 30,
-            fontWeight: 'bold',
-            fontFamily: 'Roboto',
-            color: '#FBFAF8'
-          }} >
+        < View style = {styles.topContainer} >
+          <Text style={styles.titleText}>
             MuscleApp
           </Text>
         </View>
 
-        < View style = {
-          {
-            flex: 4,
-            backgroundColor: '#FBFAF8',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }
-        }
-        >
-          <Text style={styles.time}>00</Text>
-          <Text style={styles.time}>00</Text>
+        < View style = {styles.middleContainer}>
+           < TimerDisplay time = {
+             DATA.currentTime
+           }
+           />
         </View>
 
 
-        < View style = {
-          {
-            flex: 2,
-            backgroundColor: '#4F5D75'
-          }
-        }
-        >
+        < View style = {styles.bottomContainer} >
         < Button
           onPress = {
             () => {
@@ -67,6 +47,11 @@ export default class App extends React.Component {
   }
 }
 
+function TimerDisplay({time}) {
+    const duartion = moment.duration(time)
+    return <Text style={styles.time}> {duartion.minutes()}:{duartion.seconds()}:{duartion.milliseconds()} </Text>
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -76,7 +61,29 @@ const styles = StyleSheet.create({
   },
   time: {
     color: '#002642',
-    fontSize: 180,
-    lineHeight: 180
+    fontSize: 18,
+    lineHeight: 18
+  },
+  topContainer: {
+    flex: 1,
+    backgroundColor: '#002642',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  middleContainer: {
+    flex: 4,
+    backgroundColor: '#FBFAF8',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomContainer: {
+    flex: 2,
+    backgroundColor: '#4F5D75'
+  },
+  titleText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    fontFamily: 'Roboto',
+    color: '#FBFAF8'
   }
 });
