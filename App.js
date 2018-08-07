@@ -1,5 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  View,
+  Button
+} from 'react-native';
 
 export default class App extends React.Component {
   render() {
@@ -22,20 +28,40 @@ export default class App extends React.Component {
             MuscleApp
           </Text>
         </View>
+
         < View style = {
           {
-            flex: 3,
-            backgroundColor: '#FBFAF8'
+            flex: 4,
+            backgroundColor: '#FBFAF8',
+            justifyContent: 'center',
+            alignItems: 'center',
           }
         }
-        />
+        >
+          <Text style={styles.time}>00</Text>
+          <Text style={styles.time}>00</Text>
+        </View>
+
+
         < View style = {
           {
             flex: 2,
             backgroundColor: '#4F5D75'
           }
         }
+        >
+        < Button
+          onPress = {
+            () => {
+              Alert.alert('You tapped the button!');
+            }
+          }
+          title = "BREAK TIME"
+          color = "#002642"
         />
+        </View>
+
+
       </View>
     );
   }
@@ -48,4 +74,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  time: {
+    color: '#002642',
+    fontSize: 180,
+    lineHeight: 180
+  }
 });
