@@ -4,7 +4,8 @@ import {
   StyleSheet,
   Text,
   View,
-  Button
+  Button,
+  TouchableOpacity
 } from 'react-native';
 import moment from 'moment'
 
@@ -12,12 +13,30 @@ export default class App extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      currentTime: 1234567,
-      totalWorkoutTime: 113311
+      totalWorkoutTime: 113311,
+      start: 0,
+      now: 0
     }
   }
   render() {
-    const { currentTime, totalWorkoutTime} = this.state
+    const { totalWorkoutTime, now, start} = this.state
+    const currentTime = now - start
+
+    const startFun = () => {
+      const now = new Date().getTime()
+      this.setState({
+        start: now + 1000,
+        now
+      })
+      // this.timer = setInterval(() => {
+      //   this.setState({ now: new Date().getTime()}),
+      //   500 })
+    }
+
+    const stopFun = () => {
+      clearInterval(this.timer)
+    }
+
     return (
       <View style={{flex: 1}}>
         < View style = {styles.topContainer} >
@@ -42,7 +61,7 @@ export default class App extends React.Component {
           color = "#002642"
         />
         <BreakOptions />
-        <WorkoutOptions />
+        <WorkoutOptions start={startFun} stop={stopFun}/>
         <TotalWorkout time={totalWorkoutTime} />
 
         </View>
@@ -87,25 +106,25 @@ function BreakOptions() {
   )
 }
 
-function WorkoutOptions() {
+function WorkoutOptions({start, stop}) {
   return (
     <View style={BreakOptionsStyles.MainContainer}>
       <View style={BreakOptionsStyles.TitleContainer}>
         <Text>Workout Options</Text>
       </View>
       <View style={BreakOptionsStyles.BtnContainer}>
-        <OptionBtn style={BreakOptionsStyles.Btn} title="PAUSE" textStyle={BreakOptionsStyles.TextStyle}/>
-        <OptionBtn style={BreakOptionsStyles.Btn} title="STOP" textStyle={BreakOptionsStyles.TextStyle}/>
+        <OptionBtn style={BreakOptionsStyles.Btn} title="START" textStyle={BreakOptionsStyles.TextStyle} onPress={start}/>
+        <OptionBtn style={BreakOptionsStyles.Btn} title="STOP" textStyle={BreakOptionsStyles.TextStyle} onPress={stop}/>
       </View>
     </View>
   )
 }
 
-function OptionBtn({style, title, textStyle}) {
+function OptionBtn({ style, title, textStyle, onPress }) {
   return (
-    <View style={style}>
+    <TouchableOpacity style={style} onPress={onPress}>
       <Text style={textStyle}>{title}</Text>
-    </View>
+    </TouchableOpacity>
   )
 }
 
