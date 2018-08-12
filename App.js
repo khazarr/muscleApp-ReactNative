@@ -8,6 +8,8 @@ import {
   TouchableOpacity
 } from 'react-native';
 import moment from 'moment'
+const reactTimer = require('react-native-timer')
+const ONE_MIN_30_SEC = 90000
 
 export default class App extends React.Component {
   constructor (props) {
@@ -15,27 +17,53 @@ export default class App extends React.Component {
     this.state = {
       totalWorkoutTime: 113311,
       start: 0,
-      now: 0
+      now: 0,
+      breakTime: 90000
     }
   }
-  render() {
-    const { totalWorkoutTime, now, start} = this.state
-    const currentTime = now - start
-
-    const startFun = () => {
-      const now = new Date().getTime()
-      this.setState({
-        start: now + 1000,
-        now
+  startFun = () => {
+    const now = new Date().getTime()
+    const timeInterval = 100
+    this.setState({
+      start: now,
+      now
+    })
+    // reactTimer.setInterval('main',() => {
+    //   this.setState({now: new Date().getTime()})
+    // }, 100)
+    reactTimer.setInterval('break', () => {
+      this.setState((prevState) => { 
+        return {
+          breakTime: prevState.breakTime - timeInterval
+        }
       })
-      // this.timer = setInterval(() => {
-      //   this.setState({ now: new Date().getTime()}),
-      //   500 })
-    }
+    }, timeInterval)
+  }
 
-    const stopFun = () => {
-      clearInterval(this.timer)
-    }
+  add10Sec = () => {
+    const tenSeconds = 10000
+    this.setState((prevState) => {
+      return {
+        breakTime: prevState.breakTime + tenSeconds
+      }
+    })
+  }
+
+  endBreak = () => {
+    this.setState({breakTime: 0})
+  }
+
+  setBreakTimeToStart = () => {
+    this.setState({breakTime: ONE_MIN_30_SEC})
+  }
+  stopFun = () => {
+    reactTimer.clearInterval('break')
+    Alert.alert('ZACZYMANE')
+  }
+
+  render() {
+    const { totalWorkoutTime, now, start, breakTime} = this.state
+    const currentTime = now - start
 
     return (
       <View style={{flex: 1}}>
@@ -46,7 +74,7 @@ export default class App extends React.Component {
         </View>
 
         <View style = {styles.middleContainer}>
-           <TimerDisplay time = {currentTime} style={styles.time} />
+          <TimerDisplay time={breakTime} style={styles.time} />
         </View>
 
 
@@ -60,8 +88,8 @@ export default class App extends React.Component {
           title = "BREAK TIME"
           color = "#002642"
         />
-        <BreakOptions />
-        <WorkoutOptions start={startFun} stop={stopFun}/>
+          <BreakOptions add10Sec={this.add10Sec} endBreak={this.endBreak} setBreakTimeToStart={this.setBreakTimeToStart} />
+        <WorkoutOptions start={this.startFun} stop={this.stopFun}/>
         <TotalWorkout time={totalWorkoutTime} />
 
         </View>
@@ -73,6 +101,12 @@ export default class App extends React.Component {
 }
 
 function TimerDisplay({time, style}) {
+    if (time > 0) {
+      /// set message to wait for it
+    } else {
+      // set message to keep it
+    }
+    time = Math.abs(time) // propper display when break end
     const duartion = moment.duration(time)
     return <Text style={styles.time}> {duartion.minutes()}:{duartion.seconds()}:{duartion.milliseconds()} </Text>
 }
@@ -91,16 +125,16 @@ function TotalWorkout({time}) {
   )
 }
 
-function BreakOptions() {
+function BreakOptions({ add10Sec, endBreak, setBreakTimeToStart }) {
   return (
     <View style={BreakOptionsStyles.MainContainer}>
       <View style={BreakOptionsStyles.TitleContainer}>
         <Text>Break Options</Text>
       </View>
       <View style={BreakOptionsStyles.BtnContainer}>
-        <OptionBtn style={BreakOptionsStyles.Btn} title="+10" textStyle={BreakOptionsStyles.TextStyle}/>
-        <OptionBtn style={BreakOptionsStyles.Btn} title="RETRY" textStyle={BreakOptionsStyles.TextStyle}/>
-        <OptionBtn style={BreakOptionsStyles.Btn} title="END" textStyle={BreakOptionsStyles.TextStyle}/>
+        <OptionBtn style={BreakOptionsStyles.Btn} title="+10" textStyle={BreakOptionsStyles.TextStyle} onPress={add10Sec}/>
+        <OptionBtn style={BreakOptionsStyles.Btn} title="RETRY" textStyle={BreakOptionsStyles.TextStyle} onPress={setBreakTimeToStart} />
+        <OptionBtn style={BreakOptionsStyles.Btn} title="END" textStyle={BreakOptionsStyles.TextStyle} onPress={endBreak}/>
       </View>
     </View>
   )
