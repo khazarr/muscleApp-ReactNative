@@ -8,6 +8,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import moment from 'moment'
+import FontAwesome, { Icons } from 'react-native-fontawesome';
 const reactTimer = require('react-native-timer')
 const ONE_MIN_30_SEC = 90000
 
@@ -76,8 +77,11 @@ export default class App extends React.Component {
         </View>
 
         <View style = {styles.middleContainer}>
-          <Text>{breakTime > 0 ? waitForBreakMsg : breakEndedMsg}</Text>
+          <View style={styles.workoutMsgContainer}>
+            <Text style={styles.workoutMsg}>{breakTime > 0 ? waitForBreakMsg : breakEndedMsg}</Text>
+          </View>
           <TimerDisplay time={breakTime} style={styles.time} />
+          <MilisecTimerDisplay time={breakTime} />
         </View>
 
 
@@ -104,14 +108,29 @@ export default class App extends React.Component {
 }
 
 function TimerDisplay({time, style}) {
-    if (time > 0) {
-      /// set message to wait for it
-    } else {
-      // set message to keep it
-    }
     time = Math.abs(time) // propper display when break end
     const duartion = moment.duration(time)
-    return <Text style={styles.time}> {duartion.minutes()}:{duartion.seconds()}:{duartion.milliseconds()} </Text>
+    const minutes = duartion.minutes()
+    const seconds = duartion.seconds()
+    if (minutes) {
+      return (
+        <View style={styles.timerDisplayContainer}>
+          <Text style={styles.mainTime}> {minutes >= 9 ? minutes : `0${minutes}`} </Text>
+          <Text style={styles.mainTime}> {seconds >= 9 ? seconds : `0${seconds}`} </Text>
+        </View>
+      )
+    } else {
+      return (
+        <View style={styles.timerDisplayContainer}>
+          <Text style={styles.mainTime}> {seconds >= 9 ? seconds : `0${seconds}`} </Text>
+        </View>
+      )
+    }
+}
+function MilisecTimerDisplay({time, style}) {
+  time = Math.abs(time) // propper display when break end
+  const miliseconds = moment.duration(time).milliseconds()
+  return <Text style={[styles.milisec]}> {miliseconds != 0 ? miliseconds: '000'} </Text>
 }
 
 function TotalDisplay({time, style}) {
@@ -150,7 +169,7 @@ function WorkoutOptions({start, stop}) {
         <Text>Workout Options</Text>
       </View>
       <View style={BreakOptionsStyles.BtnContainer}>
-        <OptionBtn style={BreakOptionsStyles.Btn} title="START" textStyle={BreakOptionsStyles.TextStyle} onPress={start}/>
+        <OptionBtn style={BreakOptionsStyles.Btn} title={<FontAwesome>{Icons.chevronLeft}</FontAwesome>} textStyle={BreakOptionsStyles.TextStyle} onPress={start}/>
         <OptionBtn style={BreakOptionsStyles.Btn} title="STOP" textStyle={BreakOptionsStyles.TextStyle} onPress={stop}/>
       </View>
     </View>
@@ -175,9 +194,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   time: {
-    color: '#002642',
+    color: '#1f1f21',
     fontSize: 18,
     lineHeight: 18
+  },
+  mainTime: {
+    fontSize: 160,
+    lineHeight: 160,
+    fontWeight: '100',
+    fontFamily: 'Roboto',
+    color: '#1f1f21',
   },
   topContainer: {
     flex: 1,
@@ -187,14 +213,18 @@ const styles = StyleSheet.create({
   },
   middleContainer: {
     flex: 4,
-    backgroundColor: '#FBFAF8',
+    backgroundColor: '#fff', 
     justifyContent: 'center',
     alignItems: 'center',
   },
   bottomContainer: {
     flex: 2,
-    backgroundColor: '#92DCE5',
-    padding: 10
+    backgroundColor: '#eceff1',
+    padding: 10,
+    margin: 10,
+    borderWidth: 2.5,
+    borderColor: '#dddddd',
+    borderRadius: 4
   },
   titleText: {
     fontSize: 30,
@@ -208,10 +238,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   workoutMsg: {
+    fontSize: 14,
+    fontWeight: '200',
+    margin: 'auto'
+  },
+  milisec: {
     position: 'absolute',
-    top: 10,
-    fontSize: 12,
-    fontWeight: '200'
+    bottom: 10,
+    right: 10,
+    fontSize: 9,
+    fontWeight: '100'
+  },
+  timerDisplayContainer: {
+    marginTop: 50,
+    flexDirection: 'column',
+    justifyContent: 'center'
+  },
+  unitInfo: {
+    fontSize: 7,
+    fontWeight: '100',
+    left: -30,
+    position: 'relative'
+  },
+  workoutMsgContainer: {
+    backgroundColor: '#eceff1',
+    paddingHorizontal: 55,
+    paddingVertical: 4,
+    position: 'absolute',
+    top: 5,
   }
 });
 
