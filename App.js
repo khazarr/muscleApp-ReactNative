@@ -18,7 +18,9 @@ export default class App extends React.Component {
       totalWorkoutTime: 113311,
       start: 0,
       now: 0,
-      breakTime: 90000
+      breakTime: 90000,
+      waitForBreakMsg: 'Wait for it',
+      breakEndedMsg: 'Keep it'
     }
   }
   startFun = () => {
@@ -62,7 +64,7 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { totalWorkoutTime, now, start, breakTime} = this.state
+    const { totalWorkoutTime, now, start, breakTime, waitForBreakMsg, breakEndedMsg} = this.state
     const currentTime = now - start
 
     return (
@@ -74,6 +76,7 @@ export default class App extends React.Component {
         </View>
 
         <View style = {styles.middleContainer}>
+          <Text>{breakTime > 0 ? waitForBreakMsg : breakEndedMsg}</Text>
           <TimerDisplay time={breakTime} style={styles.time} />
         </View>
 
@@ -203,6 +206,12 @@ const styles = StyleSheet.create({
     marginTop: 6,
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  workoutMsg: {
+    position: 'absolute',
+    top: 10,
+    fontSize: 12,
+    fontWeight: '200'
   }
 });
 
