@@ -11,17 +11,19 @@ import moment from 'moment'
 import { FontAwesome } from '@expo/vector-icons';
 const reactTimer = require('react-native-timer')
 const ONE_MIN_30_SEC = 90000
+const isFirstStart = false
 
 export default class App extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      totalWorkoutTime: 113311,
+      totalWorkoutTime: 0,
       start: 0,
       now: 0,
       breakTime: 90000,
       waitForBreakMsg: 'Wait for it',
-      breakEndedMsg: 'Keep it'
+      breakEndedMsg: 'Keep it',
+      isRunning: false
     }
   }
   startFun = () => {
@@ -29,6 +31,7 @@ export default class App extends React.Component {
     const timeInterval = 200
     this.setState({
       start: now,
+      isRunning: true,
       now
     })
     // reactTimer.setInterval('main',() => {
@@ -37,7 +40,8 @@ export default class App extends React.Component {
     reactTimer.setInterval('break', () => {
       this.setState((prevState) => { 
         return {
-          breakTime: prevState.breakTime - timeInterval
+          breakTime: prevState.breakTime - timeInterval,
+          now: new Date().getTime()
         }
       })
     }, timeInterval)
@@ -61,11 +65,18 @@ export default class App extends React.Component {
   }
   stopFun = () => {
     reactTimer.clearInterval('break')
+    this.setState((prevState) => {
+      const totalWorkoutTime = prevState.now - prevState.start
+      return {
+        totalWorkoutTime,
+        isRunning: false
+      }
+    })
   }
 
   render() {
-    const { totalWorkoutTime, now, start, breakTime, waitForBreakMsg, breakEndedMsg} = this.state
-    const currentTime = now - start
+    const { totalWorkoutTime, now, start, breakTime, isRunning} = this.state
+    const currentTime = now - start + totalWorkoutTime
 
     return (
       <View style={{flex: 1}}>
@@ -86,8 +97,8 @@ export default class App extends React.Component {
         <View style = {styles.bottomContainer} >
 
         <BreakOptions add10Sec={this.add10Sec} endBreak={this.endBreak} setBreakTimeToStart={this.setBreakTimeToStart} />
-        <WorkoutOptions start={this.startFun} stop={this.stopFun}/>
-        <TotalWorkout time={totalWorkoutTime} />
+          <WorkoutOptions start={this.startFun} stop={this.stopFun} isRunning={isRunning}/>
+          <TotalWorkout time={currentTime} />
 
         </View>
 
@@ -146,8 +157,18 @@ function MilisecTimerDisplay({time, style}) {
 }
 
 function TotalDisplay({time, style}) {
-    const duartion = moment.duration(time)
-    return <Text style={styles.time}> {duartion.minutes()}:{duartion.seconds()} </Text>
+    const duration = moment.duration(time)
+    const minutes = duration.minutes() + 60 * duration.hours()
+
+    if (minutes > 0) {
+      return (
+        <Text style={styles.time}> {`${minutes} min`} </Text>
+      )
+    } else {
+      return (
+        <Text style={styles.time}> under 1 min </Text>
+      )
+    }
 }
 
 function TotalWorkout({time}) {
@@ -174,15 +195,22 @@ function BreakOptions({ add10Sec, endBreak, setBreakTimeToStart }) {
   )
 }
 
-function WorkoutOptions({start, stop}) {
+function WorkoutOptions({ start, stop, isRunning}) {
+
+  function ProperOptionBtn() {
+    if (isRunning) {
+      return <OptionBtn style={BreakOptionsStyles.Btn} title={<FontAwesome name="pause" size={20} color="#eceff1" />} textStyle={BreakOptionsStyles.TextStyle} onPress={stop} />
+    } else {
+      return <OptionBtn style={BreakOptionsStyles.Btn} title={<FontAwesome name="play" size={20} color="#eceff1" />} textStyle={BreakOptionsStyles.TextStyle} onPress={start} />
+    }
+  }
   return (
     <View style={BreakOptionsStyles.MainContainer}>
       <View style={BreakOptionsStyles.TitleContainer}>
         <Text>Workout Options</Text>
       </View>
       <View style={BreakOptionsStyles.BtnContainer}>
-        <OptionBtn style={BreakOptionsStyles.Btn} title={<FontAwesome name="play" size={20} color="#eceff1" />} textStyle={BreakOptionsStyles.TextStyle} onPress={start}/>
-        <OptionBtn style={BreakOptionsStyles.Btn} title={<FontAwesome name="stop" size={20} color="#eceff1" />} textStyle={BreakOptionsStyles.TextStyle} onPress={stop}/>
+        <ProperOptionBtn />
       </View>
     </View>
   )
@@ -211,11 +239,14 @@ const styles = StyleSheet.create({
     lineHeight: 18
   },
   mainTime: {
-    fontSize: 160,
-    lineHeight: 160,
+    fontSize: 170,
+    lineHeight: 170,
     fontWeight: '100',
     fontFamily: 'Roboto',
     color: '#1f1f21',
+    textShadowColor: 'rgba(0, 38, 66, 0.5)',
+    textShadowOffset: { width: -2, height: 2 },
+    textShadowRadius: 20
   },
   topContainer: {
     flex: 1,
@@ -239,13 +270,13 @@ const styles = StyleSheet.create({
     borderRadius: 4
   },
   titleText: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: 'bold',
     fontFamily: 'Roboto',
     color: '#FBFAF8'
   },
   totalWorkout: {
-    marginTop: 6,
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
@@ -277,7 +308,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 40,
     position: 'absolute',
-    top: 20,
+    top: 13,
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -341,6 +372,6 @@ const MainBreakBtnStyles = StyleSheet.create({
   },
   Container: {
     position: 'absolute',
-    top: 20,
+    top: 13,
   }
 })
